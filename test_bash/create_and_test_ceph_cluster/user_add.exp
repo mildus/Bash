@@ -1,0 +1,36 @@
+#!/bin/bash
+#author imanyakov
+#This  script for testing ceph
+#Dont delete< please!
+
+HOSTS="suac sudcm sufs susrv"
+for H in $HOSTS
+do
+  COMM="
+  set timeout 2
+  #ssh connect:
+  spawn ssh u@$H
+  expect \"*(yes/no)?*\" {send \"yes\r\"}
+  expect \"password:\"
+  send \"1\r\"
+  expect \"u@su\"
+  send \"sudo useradd -m -s /bin/bash ceph-adm\r\"
+  expect \"u@su\"
+  send \"sudo echo \'ceph-adm:1\' | sudo chpasswd\r\"
+
+#no_password mode
+  expect \"u@su\"
+  send \"echo \'ceph-adm ALL = (root) NOPASSWD:ALL\' |sudo tee /etc/sudoers.d/ceph-adm\r\"
+
+#rules
+  expect \"u@su\"
+  send \"sudo chmod 0440 /etc/sudoers.d/ceph-adm\r\"
+  expect \"u@su\"
+  send \"sudo pdpl-user -i 63 ceph-adm\r\"
+  expect \"u@su\"
+  send \"exit\r\"
+  expect eof
+"
+#running
+expect -c "$COMM"
+done

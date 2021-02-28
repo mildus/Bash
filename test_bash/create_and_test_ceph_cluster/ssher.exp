@@ -1,0 +1,48 @@
+#!/usr/bin/expect -f
+#author imanyakov
+#This exp-script for ceph cluster testing
+
+set h1 [lindex $argv 0]
+set h2 [lindex $argv 1]
+set h3 [lindex $argv 2]
+set h4 [lindex $argv 3]
+set timeout 7
+spawn ssh -o StrictHostKeyChecking=no ceph-adm@$h1
+expect -exact "ceph-adm@$h1's password: "
+send -- "1\r"
+expect -exact "@$h1:~\$ "
+send -- "ssh-keygen\r"
+expect -exact " (/home/ceph-adm/.ssh/id_rsa): "
+send -- "\r"
+expect -exact "Overwrite (y/n)? " {send -- "y\r"}
+expect -exact "(empty for no passphrase):"
+send -- "\r"
+expect -exact "again:"
+send -- "\r"
+
+#send key
+#send me - experimental
+expect -exact "ceph-adm@$h1:~$"
+send -- "ssh-copy-id ceph-adm@$h1\r"
+expect -exact "continue connecting (yes/no)? " {send -- "yes\r"}
+expect -exact "password: "
+send -- "1\r"
+
+expect -exact "ceph-adm@$h1:~$"
+send -- "ssh-copy-id ceph-adm@$h2\r"
+expect -exact "continue connecting (yes/no)? " {send -- "yes\r"}
+expect -exact "password: "
+send -- "1\r"
+expect -exact "ceph-adm@$h1:~$"
+send -- "ssh-copy-id ceph-adm@$h3\r"
+expect -exact "continue connecting (yes/no)? " {send -- "yes\r"}
+expect -exact "password:"
+send -- "1\r"
+expect -exact "ceph-adm@$h1:~$"
+send -- "ssh-copy-id ceph-adm@$h4\r"
+expect -exact "continue connecting (yes/no)? " {send -- "yes\r"}
+expect -exact "password:"
+send -- "1\r"
+expect -exact "ceph-adm@$h1:~$"
+send -- "exit\r"
+expect eof
